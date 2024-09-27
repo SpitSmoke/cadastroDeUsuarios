@@ -1,17 +1,21 @@
-import express from 'express'
-import { PrismaClient } from '@prisma/client'
-import cors from 'cors'
+import express from 'express';
+import { PrismaClient } from '@prisma/client';
+import cors from 'cors';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
+const app = express();
 
-const app = express()
+// Configuração do CORS para permitir requisições do seu front-end
+app.use(cors({
+    origin: 'https://cadastro-de-usuarios-mvdm1v8z5-joses-projects-68f88fc4.vercel.app'
+}));
 
+app.use(express.json());
 
-app.use(cors()) 
+// Definindo a porta do servidor
+const PORT = process.env.PORT || 3000;
 
-app.use(express.json())
-
-// rota pra criar usuario
+// Rota para criar usuário
 app.post('/usuarios', async (req, res) => {
     await prisma.user.create({
         data: {
@@ -19,14 +23,14 @@ app.post('/usuarios', async (req, res) => {
             name: req.body.name,
             age: req.body.age
         }
-    })
+    });
 
-    res.status(201).json(req.body)
-})
+    res.status(201).json(req.body);
+});
 
-// rota pra Buscar/Listar os usuarios
+// Rota para buscar/listar os usuários
 app.get('/usuarios', async (req, res) => {
-    let users = []
+    let users = [];
 
     if (req.query) {
         users = await prisma.user.findMany({
@@ -35,15 +39,15 @@ app.get('/usuarios', async (req, res) => {
                 email: req.query.email,
                 age: req.query.age
             }
-        })
+        });
     } else {
-        users = await prisma.user.findMany()
+        users = await prisma.user.findMany();
     }
 
-    res.status(200).json(users)
-})
+    res.status(200).json(users);
+});
 
-// Editar o usuario
+// Rota para editar usuário
 app.put('/usuarios/:id', async (req, res) => {
     await prisma.user.update({
         where: {
@@ -54,23 +58,25 @@ app.put('/usuarios/:id', async (req, res) => {
             name: req.body.name,
             age: req.body.age
         }
-    })
+    });
 
-    res.status(201).json(req.body)
-})
+    res.status(200).json(req.body);
+});
 
-// Delete Usuario
+// Rota para deletar usuário
 app.delete('/usuarios/:id', async (req, res) => {
     await prisma.user.delete({
         where: {
             id: req.params.id
         }
-    })
-    res.status(200).json({ message: 'Usuario deletado com sucesso!' })
-})
+    });
+    res.status(200).json({ message: 'Usuário deletado com sucesso!' });
+});
 
-app.listen(3000)
-
+// Iniciando o servidor
+app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+});
 
 
 
